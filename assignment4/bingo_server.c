@@ -55,27 +55,21 @@ int main(int argc, char *argv[]){
     }
     //make randomized bingo table (4x4)
     srand(time(NULL));//initialize random seed to current time value
-    int dup_check = 0;
-    for(int i = 0; i < 4; i++){
-        for(int j = 0; j < 4; j++){
-            //rand(): 0~ RAND_MAX(32767)
+    for(int i = 0; i < ROW; i++){
+        for(int j =0; j < COL; j++){
             while(1){
-                int rand_num = (rand() % RAND_END) + RAND_START;//random number(1 ~ 30)
-                for(int k =0; k < 4; k++){
-                    for(int h = 0; h < 4; h++){
-                        if((i != k || j != h) && bingo_array[k][h] == rand_num){
-                            dup_check = 1;
-                        }
+                int isDup = 0;
+                int rand_num = (rand() % RAND_END) + RAND_START;//1~30
+                for(int k = 0; k < ROW; k++){
+                    for(int h = 0; h < COL; h++){
+                        if((k != i || h != j) && bingo_array[k][h] == rand_num)
+                            isDup = 1;
                     }
                 }
-                if(dup_check == 1) {
-                    dup_check = 0;
-                    continue;
-                }
-                else {
+                if(!isDup) {
                     bingo_array[i][j] = rand_num;
                     break;
-                }
+                } 
             }
         }
     }
