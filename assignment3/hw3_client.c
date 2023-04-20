@@ -48,6 +48,8 @@ int main(int argc, char *argv[]){
     Packet name_packet;
     strcpy(name_packet.buf, fileName);
     write(sock, &name_packet, sizeof(name_packet));
+    printf("[Client] request %s\n", fileName);
+    printf("\n");
 
     //read & write
     int accum_len = 0;
@@ -59,7 +61,10 @@ int main(int argc, char *argv[]){
         int str_len = read(sock, &recv_packet, sizeof(recv_packet));
         
         //File not found in server
-        if(strcmp(recv_packet.buf, "File Not Found") == 0) break;
+        if(strcmp(recv_packet.buf, "File Not Found") == 0) {
+            printf("FIle Not Found\n");
+            break;
+        }
         
         //File exsist in server -> write received data to file
         printf("[Client] Rx SEQ: %d, len: %d bytes\n", recv_packet.seq, recv_packet.buf_len);
