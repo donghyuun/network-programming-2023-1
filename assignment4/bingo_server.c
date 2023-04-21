@@ -98,15 +98,14 @@ int main(int argc, char *argv[]){
             printf("recvfrom() error");
             break;
         }
-        
-        int num = recv_packet.number;
-        printf("[Rx] BINGO_REQ(cmd: %d ,number: %d\n", recv_packet.cmd, recv_packet.number);//untill here works properly!!
+        printf("[Rx] BINGO_REQ(cmd: %d ,number: %d\n", recv_packet.cmd, recv_packet.number);
 
+        int recv_num = recv_packet.number;
         RES_PACKET send_packet;
-        if(check_array(bingo_array, num)){//num in bingo_array
-            if(check_array(player_choice_array, num)){//checked
+        if(check_array(bingo_array, recv_num)){//number is in bingo_array
+            if(check_array(player_choice_array, recv_num)){//already checked
                send_packet.cmd = BINGO_RES;
-               send_packet.number = num;
+               send_packet.number = recv_num;
                send_packet.result = CHECKED;
                for(int i = 0; i <ROW; i++){
                     for(int j = 0; j < COL; j++){
@@ -118,51 +117,51 @@ int main(int argc, char *argv[]){
                printf("Number : %d, ALREADY CHECKED\n",send_packet.number);
                printf("[Tx] BINGO_RES(cmd: %d, result: %d)\n", send_packet.cmd, send_packet.result);
                print_array(player_choice_array);
+               continue;
             }
-            else{//success
-                for(int i = 0; i< ROW; i++){//insert num to player_choice_array
-                    for(int j = 0; j <COL; j++){
-                        if(bingo_array[i][j] == num) player_choice_array[i][j] = num;
+            //success
+            for(int i = 0; i< ROW; i++){//insert num to player_choice_array
+                for(int j = 0; j <COL; j++){
+                    if(bingo_array[i][j] == recv_num) player_choice_array[i][j] = recv_num;
+                }
+            }
+            if(check_full(player_choice_array)){//all success
+                send_packet.cmd = BINGO_END;
+                send_packet.number = recv_num;
+                send_packet.result = SUCCESS;
+                for(int i = 0; i <ROW; i++){
+                    for(int j = 0; j < COL; j++){
+                        send_packet.board[i][j] = player_choice_array[i][j];
                     }
                 }
-                if(check_full(player_choice_array)){//all success
-                    send_packet.cmd = BINGO_END;
-                    send_packet.number = num;
-                    send_packet.result = SUCCESS;
-                    for(int i = 0; i <ROW; i++){
-                        for(int j = 0; j < COL; j++){
-                            send_packet.board[i][j] = player_choice_array[i][j];
-                        }
-                    }
 
-                    sendto(sock, &send_packet, sizeof(send_packet), 0, (struct sockaddr*)&clnt_addr, sizeof(clnt_addr));
-                    printf("bingo: [%d][%d] number: %d\n", x, y, num);
-                    printf("[Tx] BINGO_RES(cmd: %d, result: %d)\n", send_packet.cmd, send_packet.result);
-                    printf("No available space\n");
-                    printf("BINGO_END!\n");
-                    print_array(player_choice_array);
-                    exit(1);
-                }
-                else{//normal success
-                    send_packet.cmd = BINGO_RES;
-                    send_packet.number = num;
-                    send_packet.result = SUCCESS;
-                    for(int i = 0; i <ROW; i++){
-                        for(int j = 0; j < COL; j++){
-                            send_packet.board[i][j] = player_choice_array[i][j];
-                        }
+                sendto(sock, &send_packet, sizeof(send_packet), 0, (struct sockaddr*)&clnt_addr, sizeof(clnt_addr));
+                printf("bingo: [%d][%d] number: %d\n", x, y, recv_num);
+                printf("[Tx] BINGO_RES(cmd: %d, result: %d)\n", send_packet.cmd, send_packet.result);
+                printf("No available space\n");
+                printf("BINGO_END!\n");
+                print_array(player_choice_array);
+                exit(1);
+            }
+            else{//normal success
+                send_packet.cmd = BINGO_RES;
+                send_packet.number = recv_num;
+                send_packet.result = SUCCESS;
+                for(int i = 0; i <ROW; i++){
+                    for(int j = 0; j < COL; j++){
+                        send_packet.board[i][j] = player_choice_array[i][j];
                     }
-                    
-                    sendto(sock, &send_packet, sizeof(send_packet), 0, (struct sockaddr*)&clnt_addr, sizeof(clnt_addr));
-                    printf("bingo: [%d][%d] number: %d\n", x, y, num);
-                    printf("[Tx] BINGO_RES(cmd: %d, result: %d)\n", send_packet.cmd, send_packet.result);
-                    print_array(player_choice_array);
                 }
+                    
+                sendto(sock, &send_packet, sizeof(send_packet), 0, (struct sockaddr*)&clnt_addr, sizeof(clnt_addr));
+                printf("bingo: [%d][%d] number: %d\n", x, y, recv_num);
+                printf("[Tx] BINGO_RES(cmd: %d, result: %d)\n", send_packet.cmd, send_packet.result);
+                print_array(player_choice_array);
             }
         }
         else{//fail
             send_packet.cmd = BINGO_RES;
-            send_packet.number = num;
+            send_packet.number = recv_num;
             send_packet.result = FAIL;
             for(int i = 0; i <ROW; i++){
                 for(int j = 0; j < COL; j++){
