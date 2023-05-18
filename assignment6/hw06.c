@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
         alarm(2);
 
-        // to receive
+        //to wait child process's termination
         while (1)
         {
             sleep(1);
