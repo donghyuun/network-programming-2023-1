@@ -41,7 +41,7 @@ int main(int argc, char *argv[]){
 	else{        
         //below is especially essential!!! if you are receiver client
         //when using select(), fd_max(before): 2 -> fd_max(after): 3 
-        //at sender client, youi get changed fd_max by making file read fd
+        //at sender client, you get changed fd_max by making file read fd
         fd_max = (fd_max < sock) ? sock : fd_max;
 
         //add serv_sock to fd_set array for detection
